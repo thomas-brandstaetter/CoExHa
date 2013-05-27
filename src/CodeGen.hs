@@ -7,24 +7,28 @@ import LLVM.FFI.Core as FFI
 
 
 import TypeNames
+import Scanner
+
 
 codegen :: Program -> IO String
 codegen PEmpty = return "OK"
 codegen (Program program funcdef) =
     do
-        codegenProgram (Program program funcdef)
+        mod <- newNamedModule "__global_module__"
+
+        codegenProgram (Program program funcdef) mod
         return "OK"
 
 -- |
-codegenProgram :: Program -> IO String
-codegenProgram (Program PEmpty funcdef) = 
+codegenProgram :: Program -> Core.Module -> IO String
+codegenProgram (Program PEmpty funcdef) mod = 
     do
         codegenFunc funcdef
         return "OK"
 
-codegenProgram (Program program funcdef) = 
+codegenProgram (Program program funcdef) mod = 
     do
-        codegenProgram program
+        codegenProgram program mod
         codegenFunc funcdef
         return "OK"
 
@@ -32,6 +36,7 @@ codegenProgram (Program program funcdef) =
 codegenFunc :: Funcdef -> IO String
 codegenFunc (Funcdef name params stmts) = 
     do 
+        
         codegenParams params
         codegenStmts stmts
         return "OK"
