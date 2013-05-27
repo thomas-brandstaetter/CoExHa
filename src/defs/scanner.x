@@ -33,7 +33,7 @@ tokens :-
     "*"                     { \p s -> TStar p }
     "#"                     { \p s -> TNumSign p }
     @identifier             { \p s -> TId p s }
-    @number                 { \p s -> TNum p s }
+    @number                 { \p s -> TNum p (read s :: Int) }
 
 {
 
@@ -62,7 +62,7 @@ data Token =
     TStar           AlexPosn        |
     TNumSign        AlexPosn        |
     TId             AlexPosn String |
-    TNum            AlexPosn String
+    TNum            AlexPosn Int
 
 
 

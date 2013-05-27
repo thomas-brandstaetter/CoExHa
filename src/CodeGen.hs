@@ -4,7 +4,12 @@
 
 import LLVM.Core as Core
 import LLVM.FFI.Core as FFI
-
+import Foreign.Ptr (Ptr, nullPtr)
+import Foreign.Marshal.Array (withArrayLen, withArray, allocaArray, peekArray)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Storable (Storable(..))
+import Foreign.Marshal.Utils (fromBool)
+import System.IO.Unsafe (unsafePerformIO)
 
 import TypeNames
 import Scanner
@@ -23,25 +28,26 @@ codegen (Program program funcdef) =
 codegenProgram :: Program -> Core.Module -> IO String
 codegenProgram (Program PEmpty funcdef) mod = 
     do
-        codegenFunc funcdef
+        codegenFunc funcdef mod
         return "OK"
 
 codegenProgram (Program program funcdef) mod = 
     do
         codegenProgram program mod
-        codegenFunc funcdef
+        codegenFunc funcdef mod
         return "OK"
 
 -- |
-codegenFunc :: Funcdef -> IO String
-codegenFunc (Funcdef name params stmts) = 
-    do 
-        
+codegenFunc :: Funcdef -> Core.Module -> IO String
+codegenFunc (Funcdef name params stmts) mod = 
+    do
         codegenParams params
         codegenStmts stmts
         return "OK"
 
--- |
+
+
+-- | codegenParams 
 codegenParams :: Params -> IO String 
 codegenParams (ParamsOne name) = 
     do 
@@ -55,7 +61,26 @@ codegenParams (Params name params) =
 
 codegenParams (PaEmpty) =
     do
+        let methodType = funcType (False :: Bool) FFI.int64Type [FFI.int64Type]
         return "OK"
+
+
+-- | getArgTypes is a helper in order to convert
+-- myceh types into LLVM TypeRefs
+paramTypes :: Params -> [FFI.TypeRef]
+paramTypes PaEmpty = []
+paramTypes (ParamsOne ident) = [FFI.int64Type]
+paramTypes (Params ident ps) = 
+    [FFI.int64Type] ++ (paramTypes ps)
+
+
+-- | funcType is a helper to provide LLVM the correct types
+--
+funcType :: Bool -> FFI.TypeRef -> [FFI.TypeRef] -> FFI.TypeRef
+funcType varargs retType paramTypes = unsafePerformIO $
+    withArrayLen paramTypes $ \ len ptr ->
+        return $ FFI.functionType retType ptr (fromIntegral len)
+	       	 		  False
 
 codegenStmts :: Stmts -> IO String
 codegenStmts (Stmts stmt stmts) =

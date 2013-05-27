@@ -58,7 +58,7 @@ data Unary
 data Term
     = TermId Ident
     | TermExpr Expr
-    | TermNum Ident
+    | TermNum Int
     | TermCall Ident
     | TermCallArgs Ident Args
     deriving (Show, Eq)
