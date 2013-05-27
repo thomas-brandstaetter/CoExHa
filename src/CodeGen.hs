@@ -4,6 +4,8 @@
 
 import LLVM.Core as Core
 import LLVM.FFI.Core as FFI
+import LLVM.Wrapper.Core as Wrapper
+
 import Foreign.Ptr (Ptr, nullPtr)
 import Foreign.Marshal.Array (withArrayLen, withArray, allocaArray, peekArray)
 import Foreign.Marshal.Alloc (alloca)
@@ -19,13 +21,13 @@ codegen :: Program -> IO String
 codegen PEmpty = return "OK"
 codegen (Program program funcdef) =
     do
-        mod <- newNamedModule "__global_module__"
+        mod <- Wrapper.moduleCreateWithName "__global_module__"
 
         codegenProgram (Program program funcdef) mod
         return "OK"
 
 -- |
-codegenProgram :: Program -> Core.Module -> IO String
+codegenProgram :: Program -> Wrapper.Module -> IO String
 codegenProgram (Program PEmpty funcdef) mod = 
     do
         codegenFunc funcdef mod
@@ -38,37 +40,22 @@ codegenProgram (Program program funcdef) mod =
         return "OK"
 
 -- |
-codegenFunc :: Funcdef -> Core.Module -> IO String
+codegenFunc :: Funcdef -> Wrapper.Module -> IO String
 codegenFunc (Funcdef name params stmts) mod = 
     do
-        codegenParams params
+        let methodType = funcType (False :: Bool) FFI.int64Type (paramTypes params)
+        method <- Wrapper.addFunction mod name methodType
+        builder <- Wrapper.createBuilder
+        entry <- Wrapper.appendBasicBlock method "entry"
         codegenStmts stmts
         return "OK"
 
 
 
--- | codegenParams 
-codegenParams :: Params -> IO String 
-codegenParams (ParamsOne name) = 
-    do 
-        
-        return "OK"
-
-codegenParams (Params name params) =
-    do 
-        (codegenParams params)
-        return "OK"
-
-codegenParams (PaEmpty) =
-    do
-        let methodType = funcType (False :: Bool) FFI.int64Type [FFI.int64Type]
-        return "OK"
-
-
 -- | getArgTypes is a helper in order to convert
 -- myceh types into LLVM TypeRefs
 paramTypes :: Params -> [FFI.TypeRef]
-paramTypes PaEmpty = []
+paramTypes PaEmpty = [FFI.int64Type]            -- return 0 for null
 paramTypes (ParamsOne ident) = [FFI.int64Type]
 paramTypes (Params ident ps) = 
     [FFI.int64Type] ++ (paramTypes ps)
@@ -81,6 +68,8 @@ funcType varargs retType paramTypes = unsafePerformIO $
     withArrayLen paramTypes $ \ len ptr ->
         return $ FFI.functionType retType ptr (fromIntegral len)
 	       	 		  False
+
+
 
 codegenStmts :: Stmts -> IO String
 codegenStmts (Stmts stmt stmts) =
