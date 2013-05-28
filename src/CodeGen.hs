@@ -93,12 +93,72 @@ codegenStmt (StmtGoto _) builder =
         error "not implemented: goto"
 
 
+-- | codegenExpr
+codegenExpr :: Expr -> Wrapper.Builder -> IO String
+codegenExpr (ExprUnary unary) builder = 
+    do
+        
+        return "OK"
+
+codegenExpr (ExprPlus lterm rterm) builder =
+    do
+        return "OK"
+
+codegenExpr (ExprMinus lterm rterm) builder =
+    do
+        return "OK"
+
+codegenExpr (ExprAnd lterm rterm) builder =
+    do
+        return "OK"
+
+codegenExpr (ExprTerm term) builder =
+    do
+        return "OK"
+
+
+
+
+-- | codegenLExpr
+codegenLExpr :: LExpr -> Wrapper.Builder -> IO String
+codegenLExpr _ _ =
+    do
+        error "not implemented: lexpr"
+
+
+-- | codegenUnary
+codegenUnary :: Unary -> Wrapper.Builder -> IO String
+codegenUnary (UnaryNot value) builder
+    do
+        return "OK"
+
+codegenUnary (UnaryMinus value) builder
+    do
+        return "OK"
+
+codegenUnary (UnaryTerm term) builder
+    do
+        return "OK"
+
 
 -- | codegenTerm
 codegenTerm :: Term -> Wrapper.Builder -> IO String
 codegenTerm (TermId name) builder = 
     do
         return "OK"
+
+codegenTerm (TermExpr expr) buider = 
+    do
+        return "OK"
+
+codegenTerm (TermNum num) builder = 
+    do
+        return "OK"
+
+codegenTerm _ builder =
+    do
+        error "not implemented: call"
+
 
 
 --codegenStmt (StmtDecl name expr) = 
