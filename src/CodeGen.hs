@@ -21,33 +21,33 @@ codegen :: Program -> IO String
 codegen PEmpty = return "OK"
 codegen (Program program funcdef) =
     do
-        mod <- Wrapper.moduleCreateWithName "__global_module__"
+        module_ <- Wrapper.moduleCreateWithName "__global_module__"
 
-        codegenProgram (Program program funcdef) mod
+        codegenProgram (Program program funcdef) module_
         return "OK"
 
 -- |
 codegenProgram :: Program -> Wrapper.Module -> IO String
-codegenProgram (Program PEmpty funcdef) mod = 
+codegenProgram (Program PEmpty funcdef) module_ = 
     do
-        codegenFunc funcdef mod
+        codegenFunc funcdef module_
         return "OK"
 
-codegenProgram (Program program funcdef) mod = 
+codegenProgram (Program program funcdef) module_ = 
     do
-        codegenProgram program mod
-        codegenFunc funcdef mod
+        codegenProgram program module_
+        codegenFunc funcdef module_
         return "OK"
 
 -- |
 codegenFunc :: Funcdef -> Wrapper.Module -> IO String
-codegenFunc (Funcdef name params stmts) mod = 
+codegenFunc (Funcdef name params stmts) module_ = 
     do
-        let methodType = funcType (False :: Bool) FFI.int64Type (paramTypes params)
-        method <- Wrapper.addFunction mod name methodType
+        let methodType = Wrapper.functionType FFI.int64Type (paramTypes params) (False :: Bool)
+        method <- Wrapper.addFunction module_ name methodType
         builder <- Wrapper.createBuilder
         entry <- Wrapper.appendBasicBlock method "entry"
-        codegenStmts stmts
+        codegenStmts stmts builder
         return "OK"
 
 
@@ -61,45 +61,45 @@ paramTypes (Params ident ps) =
     [FFI.int64Type] ++ (paramTypes ps)
 
 
--- | funcType is a helper to provide LLVM the correct types
---
-funcType :: Bool -> FFI.TypeRef -> [FFI.TypeRef] -> FFI.TypeRef
-funcType varargs retType paramTypes = unsafePerformIO $
-    withArrayLen paramTypes $ \ len ptr ->
-        return $ FFI.functionType retType ptr (fromIntegral len)
-	       	 		  False
-
-
-
-codegenStmts :: Stmts -> IO String
-codegenStmts (Stmts stmt stmts) =
+codegenStmts :: Stmts -> Wrapper.Builder -> IO String
+codegenStmts (Stmts stmt stmts) builder =
     do 
-        codegenStmt stmt
-        codegenStmts stmts
+        codegenStmt stmt builder
+        codegenStmts stmts builder
         return "OK"
 
-codegenStmts (SEmpty) =
+codegenStmts (SEmpty) builder =
+    do        
+        return "OK"
+
+codegenStmt :: Stmt -> Wrapper.Builder -> IO String
+codegenStmt (StmtReturn term) builder =
     do 
         return "OK"
 
-codegenStmt :: Stmt -> IO String
-codegenStmt (StmtReturn name) =
-    do 
-        return "OK"
-
-codegenStmt (StmtReturnNull) =
+codegenStmt (StmtReturnNull) builder =
     do
+        Wrapper.buildRet builder (constInt FFI.int64Type 0 (False :: Bool))
         return "OK"
 
-codegenStmt (StmtGoto name) =
-    do
-        return "OK"
-
-codegenStmt (StmtIf condition stmts) = 
+codegenStmt (StmtIf condition stmts) builder = 
     do 
 --        codegenExpr condition
-        codegenStmts stmts
+        codegenStmts stmts builder
         return "OK"
+
+codegenStmt (StmtGoto _) builder =
+    do
+        error "not implemented: goto"
+
+
+
+-- | codegenTerm
+codegenTerm :: Term -> Wrapper.Builder -> IO String
+codegenTerm (TermId name) builder = 
+    do
+        return "OK"
+
 
 --codegenStmt (StmtDecl name expr) = 
 --    do
