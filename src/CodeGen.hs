@@ -104,7 +104,7 @@ codegenExpr (ExprPlus lterm rterm) builder =
     do
         return "OK"
 
-codegenExpr (ExprMinus lterm rterm) builder =
+codegenExpr (ExprMult lterm rterm) builder =
     do
         return "OK"
 
@@ -114,8 +114,8 @@ codegenExpr (ExprAnd lterm rterm) builder =
 
 codegenExpr (ExprTerm term) builder =
     do
+        codegenTerm term builder
         return "OK"
-
 
 
 
@@ -128,15 +128,15 @@ codegenLExpr _ _ =
 
 -- | codegenUnary
 codegenUnary :: Unary -> Wrapper.Builder -> IO String
-codegenUnary (UnaryNot value) builder
+codegenUnary (UnaryNot value) builder =
     do
         return "OK"
 
-codegenUnary (UnaryMinus value) builder
+codegenUnary (UnaryMinus value) builder =
     do
         return "OK"
 
-codegenUnary (UnaryTerm term) builder
+codegenUnary (UnaryTerm term) builder =
     do
         return "OK"
 
@@ -153,6 +153,7 @@ codegenTerm (TermExpr expr) buider =
 
 codegenTerm (TermNum num) builder = 
     do
+        Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
         return "OK"
 
 codegenTerm _ builder =
