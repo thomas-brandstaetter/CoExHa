@@ -25,7 +25,7 @@ Grammar
 	Labeldef -> id ":"                                 (9)
 	Labeldef ->                                        (10)
 	Stmt -> return                                     (11)
-	Stmt -> return id                                  (12)
+	Stmt -> return Term                                (12)
 	Stmt -> goto id                                    (13)
 	Stmt -> if Expr then Stmts end                     (14)
 	Stmt -> var id "=" Expr                            (15)
@@ -230,11 +230,14 @@ State 15
 State 16
 
 	Stmt -> return .                                    (rule 11)
-	Stmt -> return . id                                 (rule 12)
+	Stmt -> return . Term                               (rule 12)
 
 	";"            reduce using rule 11
-	id             shift, and enter state 34
+	"("            shift, and enter state 20
+	id             shift, and enter state 30
+	num            shift, and enter state 22
 
+	Term           goto state 34
 
 State 17
 
@@ -414,7 +417,7 @@ State 33
 
 State 34
 
-	Stmt -> return id .                                 (rule 12)
+	Stmt -> return Term .                               (rule 12)
 
 	";"            reduce using rule 12
 

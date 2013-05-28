@@ -27,7 +27,7 @@ data Stmts
     deriving (Show, Eq)
 
 data Stmt
-    = StmtReturn Ident
+    = StmtReturn Term 
     | StmtReturnNull
     | StmtGoto Ident
     | StmtIf Expr Stmts

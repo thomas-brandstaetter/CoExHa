@@ -60,7 +60,7 @@ Labeldef:
 
 Stmt:
     return                          { StmtReturnNull }
-    | return id                     { StmtReturn $2 }
+    | return Term                   { StmtReturn $2 }
     | goto id                       { StmtGoto $2 }
     | if Expr then Stmts end        { StmtIf $2 $4 }
     | var id "=" Expr               { StmtDecl $2 $4 }
