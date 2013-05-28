@@ -1,1 +1,8 @@
 *.swp
+grammar.info
+build/*
+dist/build/*
+hi/
+obj/
+src/Parser.hs
+src/Scanner.hs                 
