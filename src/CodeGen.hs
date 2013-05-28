@@ -94,28 +94,38 @@ codegenStmt (StmtGoto _) builder =
 
 
 -- | codegenExpr
-codegenExpr :: Expr -> Wrapper.Builder -> IO String
+codegenExpr :: Expr -> Wrapper.Builder -> IO Wrapper.Value
 codegenExpr (ExprUnary unary) builder = 
     do
-        
-        return "OK"
+        val <- codegenUnary unary builder
+        return val
 
 codegenExpr (ExprPlus lterm rterm) builder =
     do
-        return "OK"
+        lval <- codegenTerm lterm builder
+        rval <- codegenTerm rterm builder
+        ret <- Wrapper.buildAnd builder lval rval "tmpand"
+        return ret
+
 
 codegenExpr (ExprMult lterm rterm) builder =
     do
-        return "OK"
+        lval <- codegenTerm lterm builder
+        rval <- codegenTerm rterm builder
+        ret <- Wrapper.buildMul builder lval rval "tmpmul"
+        return ret
 
 codegenExpr (ExprAnd lterm rterm) builder =
     do
-        return "OK"
+        lval <- codegenTerm lterm builder
+        rval <- codegenTerm rterm builder
+        ret <- Wrapper.buildAnd builder lval rval "tmpand"
+        return ret
 
 codegenExpr (ExprTerm term) builder =
     do
-        codegenTerm term builder
-        return "OK"
+        val <- codegenTerm term builder
+        return val
 
 
 
@@ -127,34 +137,40 @@ codegenLExpr _ _ =
 
 
 -- | codegenUnary
-codegenUnary :: Unary -> Wrapper.Builder -> IO String
+codegenUnary :: Unary -> Wrapper.Builder -> IO Wrapper.Value
 codegenUnary (UnaryNot value) builder =
     do
-        return "OK"
+        val <- codegenUnary value builder
+        ret <- Wrapper.buildNot builder val "tmpnot"
+        return ret
 
 codegenUnary (UnaryMinus value) builder =
     do
-        return "OK"
+        val <- codegenUnary value builder
+        ret <- Wrapper.buildNeg builder val "tmpminus"
+        return ret
 
 codegenUnary (UnaryTerm term) builder =
     do
-        return "OK"
+        val <- codegenTerm term builder
+        return val
 
 
 -- | codegenTerm
-codegenTerm :: Term -> Wrapper.Builder -> IO String
+codegenTerm :: Term -> Wrapper.Builder -> IO Wrapper.Value
 codegenTerm (TermId name) builder = 
     do
-        return "OK"
+        error "not implemented: Term id"
 
-codegenTerm (TermExpr expr) buider = 
+codegenTerm (TermExpr expr) builder = 
     do
-        return "OK"
+        val <- codegenExpr expr builder
+        return val
 
 codegenTerm (TermNum num) builder = 
     do
-        Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
-        return "OK"
+        -- Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
+        error "not implemented: term num"
 
 codegenTerm _ builder =
     do
