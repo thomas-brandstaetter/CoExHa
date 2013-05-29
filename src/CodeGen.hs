@@ -5,6 +5,7 @@
 import LLVM.Core as Core
 import LLVM.FFI.Core as FFI
 import LLVM.Wrapper.Core as Wrapper
+import LLVM.Wrapper.BitWriter as BitWriter
 
 import Foreign.Ptr (Ptr, nullPtr)
 import Foreign.Marshal.Array (withArrayLen, withArray, allocaArray, peekArray)
@@ -24,8 +25,8 @@ codegen PEmpty = return "OK"
 codegen (Program program funcdef) =
     do
         module_ <- Wrapper.moduleCreateWithName "__global_module__"
-
         codegenProgram (Program program funcdef) module_
+        BitWriter.writeBitcodeToFile module_ "bitcode.ir"
         return "OK"
 
 -- |
@@ -166,9 +167,8 @@ codegenTerm (TermId name) builder m =
 
 codegenTerm (TermExpr expr) builder m = 
     do
-        -- val <- codegenExpr expr builder
-        -- return val
-        error "not implemented"
+        val <- codegenExpr expr builder m
+        return val
 
 codegenTerm (TermNum num) builder m =
     do
