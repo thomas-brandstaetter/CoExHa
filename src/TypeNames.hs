@@ -59,14 +59,7 @@ data Term
     = TermId Ident
     | TermExpr Expr
     | TermNum Int
-    | TermCall Ident
-    | TermCallArgs Ident Args
-    deriving (Show, Eq)
-
-
-data Args
-    = Arg Ident
-    | Args Ident Args
+    | TermCall Ident Params
     deriving (Show, Eq)
 
 

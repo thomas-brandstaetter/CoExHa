@@ -43,7 +43,7 @@ Program:
     |                               { PEmpty }
 
 Funcdef:
-    id "(" Params ")" Stmts end      { Funcdef $1 $3 $5 }
+    id "(" Params ")" Stmts end     { Funcdef $1 $3 $5 }
     
 Params:
     id                              { ParamsOne $1 }
@@ -81,14 +81,9 @@ LExpr:
 Term:
     "(" Expr ")"                    { TermExpr $2 }
     | id                            { TermId $1 }
-    | id "(" ")"                    { TermCall $1 }
-    | id "(" Args ")"               { TermCallArgs $1 $3 }
+    | id "(" Params ")"             { TermCall $1 $3 }
     | num                           { TermNum $1 }
     
-Args:
-    id                              { Arg $1 }
-    | id "," Args                   { Args $1 $3 }
-
 Unary:
     not Unary                       { UnaryNot $2 } 
     | "-" Unary                     { UnaryMinus $2 }

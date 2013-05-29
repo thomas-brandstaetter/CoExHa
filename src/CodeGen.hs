@@ -169,31 +169,16 @@ codegenTerm (TermExpr expr) builder =
 
 codegenTerm (TermNum num) builder = 
     do
-        -- Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
-        error "not implemented: term num"
+        -- val <- Wrapper.constInt Wrapper.int64Type (fromIntegral num) (False :: Bool)
+        -- return val
+        error "Not implemented: Term num"
+
+codegenTerm (TermCall name params) builder =
+    do
+        call <- Wrapper.buildCall builder FFI.int64Type (paramTypes params) "calltmp"
+        return call
 
 codegenTerm _ builder =
     do
         error "not implemented: call"
-
-
-
---codegenStmt (StmtDecl name expr) = 
---    do
---        codegenExpr expr
---        return "OK"
---
---codegenStmt (StmtTerm term) =
---    do 
---        codegenTerm term
---
---
---
---codegenExpr :: Expr -> IO String
---codegenExpr (expr) =
---    do
---        retrun "OK"
---
---codegenTerm :: Term -> IO String
---codegenTerm (
 
