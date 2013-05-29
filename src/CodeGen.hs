@@ -48,9 +48,16 @@ codegenFunc (Funcdef name params stmts) module_ =
     do
         let methodType = Wrapper.functionType FFI.int64Type (paramTypes params) (False :: Bool)
         method <- Wrapper.addFunction module_ name methodType
+      
         builder <- Wrapper.createBuilder
         entry <- Wrapper.appendBasicBlock method "entry"
+        
         codegenStmts stmts builder module_
+        
+        Wrapper.positionAtEnd builder entry
+
+        FFI.dumpValue method
+
         return "OK"
 
 
@@ -76,8 +83,15 @@ codegenStmts (SEmpty) builder m =
         return "OK"
 
 codegenStmt :: Stmt -> Wrapper.Builder -> Wrapper.Module -> IO String
+codegenStmt (StmtReturn (TermNum num)) builder m =
+    do
+        Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
+        return "OK"
+
 codegenStmt (StmtReturn term) builder m =
-    do 
+    do
+        val <- codegenTerm term builder m
+        Wrapper.buildRet builder val
         return "OK"
 
 codegenStmt (StmtReturnNull) builder m =
@@ -95,6 +109,21 @@ codegenStmt (StmtGoto _) builder m =
     do
         error "not implemented: goto"
 
+codegenStmt (StmtDecl name expr) bulider m =
+    do
+        error "ni"
+
+codegenStmt (StmtTerm term) builder m =
+    do
+        error "ni"
+
+codegenStmt (StmtLExpr lexpr expr) builder m =
+    do 
+        error "ni"
+
+codegenStmt (StmtEmpty) builder m = 
+    do
+        error "ni"
 
 -- | codegenExpr
 codegenExpr :: Expr -> Wrapper.Builder -> Wrapper.Module -> IO Wrapper.Value

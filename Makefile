@@ -7,6 +7,7 @@ DEFS=$(SRC)/defs
 
 HAPPY=happy
 HAPPY_OPTS=--info=grammar.info -g -a -d
+#HAPPY_OPTS=
 
 ALEX=alex
 ALEX_OPTS=
@@ -35,6 +36,9 @@ $(SRC)/Scanner.hs: $(DEFS)/scanner.x
 $(SRC)/Parser.hs: $(DEFS)/parser.y
 	$(HAPPY) $(HAPPY_OPTS)  $(DEFS)/parser.y
 	mv $(DEFS)/parser.hs $(SRC)/Parser.hs
+
+dis: bitcode.ir
+	llvm-dis-mp-3.2 -o bitcode.dis bitcode.ir
 
 clean: 
 	cd $(SRC); rm -rf Scanner.hs Parser.hs
