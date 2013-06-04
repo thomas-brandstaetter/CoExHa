@@ -6,8 +6,8 @@ BUILD=build
 DEFS=$(SRC)/defs
 
 HAPPY=happy
-HAPPY_OPTS=--info=grammar.info -g -a -d
-#HAPPY_OPTS=
+#HAPPY_OPTS=--info=grammar.info -g -a -d
+HAPPY_OPTS=
 
 ALEX=alex
 ALEX_OPTS=

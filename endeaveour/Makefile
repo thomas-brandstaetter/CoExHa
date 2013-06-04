@@ -7,18 +7,28 @@ ALEX_OPTS=
 GHC=ghc
 GHC_OPTS=
 
-
-all: first_step addMul
-
-first_step: first_step.hs
-	$(GHC) $(GHC_OPTS) -o first_step first_step.hs
+RM=rm -f
 
 
-addMul: addMul.hs
-	$(GHC) $(GHC_OPTS) -o addMul addMul.hs
+SRCS=$(wildcard *.hs)
+PRGS=${SRCS:.hs=}
+OBJS=$(SRCS:.hs=.o)
+HIS=$(SRCS:.hs=.hi)
 
+all: $(OBJS)
+
+
+%.o : %.hs
+	$(GHC) $(GHC_OPTS) $< 
+
+dis: 
+	llvm-dis-mp-3.2 bitcode.bc
+
+ll:
+	cat bitcode.ll
 
 clean:
-	rm addMul first_step  addMul.{hi,o} first_step.{hi,o} *.bc
+	$(RM) $(PRGS) $(OBJS) $(HIS)
+	$(RM) *.bc *.ll
 
-.PHONY: clean
+.PHONY: clean all

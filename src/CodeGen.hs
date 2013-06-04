@@ -21,11 +21,20 @@ import Scanner
 
 
 codegen :: Program -> IO String
-codegen PEmpty = return "OK"
+codegen PEmpty = 
+    do
+        putStrLn "codegen PEmpty"
+        return "OK"
+
 codegen (Program program funcdef) =
     do
+        putStrLn "codegen (Program program funcdef)"
         module_ <- Wrapper.moduleCreateWithName "__global_module__"
         codegenProgram (Program program funcdef) module_
+
+        Wrapper.dumpModule module_
+
+        putStrLn "    about to write file"
         BitWriter.writeBitcodeToFile module_ "bitcode.ir"
         return "OK"
 
@@ -33,11 +42,15 @@ codegen (Program program funcdef) =
 codegenProgram :: Program -> Wrapper.Module -> IO String
 codegenProgram (Program PEmpty funcdef) module_ = 
     do
+        putStrLn "codegenProgram (Program PEmpty funcdef) module_"
+
         codegenFunc funcdef module_
         return "OK"
 
 codegenProgram (Program program funcdef) module_ = 
     do
+        putStrLn "codegenProgram (Program program funcdef) module_"
+
         codegenProgram program module_
         codegenFunc funcdef module_
         return "OK"
@@ -46,14 +59,18 @@ codegenProgram (Program program funcdef) module_ =
 codegenFunc :: Funcdef -> Wrapper.Module -> IO String
 codegenFunc (Funcdef name params stmts) module_ = 
     do
+        putStrLn "codegenFunc (Funcdef name params stmts) module_"
+
         let methodType = Wrapper.functionType FFI.int64Type (paramTypes params) (False :: Bool)
         method <- Wrapper.addFunction module_ name methodType
       
         builder <- Wrapper.createBuilder
         entry <- Wrapper.appendBasicBlock method "entry"
         
-        codegenStmts stmts builder module_
-        
+        (codegenStmts stmts builder module_) >>= putStr
+       
+        withBuilder
+ 
         Wrapper.positionAtEnd builder entry
 
         FFI.dumpValue method
@@ -74,28 +91,34 @@ paramTypes (Params ident ps) =
 codegenStmts :: Stmts -> Wrapper.Builder -> Wrapper.Module -> IO String
 codegenStmts (Stmts stmt stmts) builder m =
     do 
+        putStrLn "codegenStmts (Stmts stmt stmts) builder m"
         codegenStmt stmt builder m
         codegenStmts stmts builder m
         return "OK"
 
 codegenStmts (SEmpty) builder m =
     do        
+        putStrLn "codegenStmts (SEmpty) builder m"
         return "OK"
 
 codegenStmt :: Stmt -> Wrapper.Builder -> Wrapper.Module -> IO String
 codegenStmt (StmtReturn (TermNum num)) builder m =
     do
+        putStrLn "codegenStmt (StmtReturn (TermNum num)) builder m "
         Wrapper.buildRet builder (constInt FFI.int64Type (fromIntegral num) (False :: Bool))
         return "OK"
 
 codegenStmt (StmtReturn term) builder m =
     do
+        putStrLn "codegenStmt (StmtReturn term) builder m "
         val <- codegenTerm term builder m
         Wrapper.buildRet builder val
         return "OK"
 
 codegenStmt (StmtReturnNull) builder m =
     do
+        putStrLn "codegenStmt (StmtReturnNull) builder m"
+        
         Wrapper.buildRet builder (constInt FFI.int64Type 0 (False :: Bool))
         return "OK"
 
@@ -129,11 +152,13 @@ codegenStmt (StmtEmpty) builder m =
 codegenExpr :: Expr -> Wrapper.Builder -> Wrapper.Module -> IO Wrapper.Value
 codegenExpr (ExprUnary unary) builder m = 
     do
+        putStrLn "codegenExpr (ExprUnary unary) builder m "
         val <- codegenUnary unary builder m
         return val
 
 codegenExpr (ExprPlus lterm rterm) builder m =
     do
+        putStrLn "codegenExpr (ExprPlus lterm rterm) builder m"
         lval <- codegenTerm lterm builder m
         rval <- codegenTerm rterm builder m
         ret <- Wrapper.buildAnd builder lval rval "tmpand"
@@ -201,7 +226,12 @@ codegenTerm (TermExpr expr) builder m =
 
 codegenTerm (TermNum num) builder m =
     do
+        putStr "dump --"
+        Wrapper.dumpValue (Wrapper.constInt Wrapper.int64Type (fromIntegral num) (False :: Bool)) 
+        putStr "dump ++"
+
         return (Wrapper.constInt Wrapper.int64Type (fromIntegral num) (False :: Bool))
+ 
 
 codegenTerm (TermCall name params) builder m =
     do
