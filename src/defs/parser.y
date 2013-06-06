@@ -11,27 +11,27 @@ import CodeGen
 %tokentype { Token }
 %error { parseError }
 %token
-    end                     { TEnd _ }
+
     return                  { TReturn _ }
-    goto                    { TGoto _ }
     if                      { TIf _ }
-    then                    { TThen _ }
-    var                     { TVar _ }
-    not                     { TNot _ }
-    and                     { TAnd _ }
-    "=<"                    { TLessOrEqual _ }
+    "=="                    { TEqual _ }
+    "<"                     { TLess _ }
+    ">"                     { TGreater _ }
+    "<="                    { TLessOrEqual _ }
+    ">="                    { TGreaterOrEqual _ }
     ";"                     { TSemicolon _ }
     "("                     { TLeftParen _ }
     ")"                     { TRightParen _ }
+    "{"                     { TLeftCurlyBracket _ }
+    "}"                     { TRightCurlyBracket _ }
     ","                     { TComma _ }
-    ":"                     { TColon _ }
     "+"                     { TPlus _ }
     "-"                     { TMinus _ }
     "="                     { TEqual _ }
     "*"                     { TStar _ }
-    "#"                     { TNumSign _ }
-    id                      { TId _ $$ }
-    num                     { TNum _ $$ }
+    "/"                     { TDivide _ }
+    identifier              { TId _ %% }
+    number                  { TNum _ %% }
 
 %attributetype { Attrs }
 
@@ -43,12 +43,16 @@ Program:
     |                               { PEmpty }
 
 Funcdef:
-    id "(" Params ")" Stmts end     { Funcdef $1 $3 $5 }
+    id "(" Params ")" Block end     { Funcdef $1 $3 $5 }
     
 Params:
     id                              { ParamsOne $1 }
     | id "," Params                 { Params $1 $3 }
     |                               { PaEmpty }
+
+Block:
+    "{" Stmts "}"                   { Stmts $2 }
+
 
 Stmts:
     Stmt ";" Stmts                  { Stmts $1 $3 }
@@ -62,10 +66,9 @@ Stmt:
     return                          { StmtReturnNull }
     | return Term                   { StmtReturn $2 }
     | goto id                       { StmtGoto $2 }
-    | if Expr then Stmts end        { StmtIf $2 $4 }
-    | var id "=" Expr               { StmtDecl $2 $4 }
+    | if "(" Expr ")" Block         { StmtIf $3 $5 }
+    | id "=" Expr                   { StmtDecl $2 $4 }
     | Term                          { StmtTerm $1 }
-    | LExpr "=" Expr                { StmtLExpr $1 $3 }
     |                               { StmtEmpty }
 
 Expr:
