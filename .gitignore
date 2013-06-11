@@ -6,3 +6,7 @@ hi/
 obj/
 src/Parser.hs
 src/Scanner.hs                 
+src/Scanner.hs
+help/*
+endeaveour/*
+
