@@ -1,3 +1,0 @@
-id ()
-	return id;
-end;
