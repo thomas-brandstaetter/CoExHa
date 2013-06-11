@@ -1,68 +1,46 @@
 module TypeNames where
 
 
-data Program
-    = Program Program Funcdef
-    | PEmpty
+data Statement
+    = Assign String Expression
+    | Call String
+    | Write String
+    | If Condition Statement
+    | While Condition Statement
+    | Begin [Statement]
     deriving (Show, Eq)
 
-data Funcdef
-    = Funcdef Ident Params Stmts
+data Condition
+    = Odd Expression
+    | Eq Expression Expression
+    | Ne Expression Expression
+    | Gt Expression Expression
+    | Lt Expression Expression
+    | Ge Expression Expression
+    | Le Expression Expression
     deriving (Show, Eq)
 
-data Params
-    = Params Ident Params
-    | ParamsOne Ident
-    | PaEmpty
+data Expression
+    = Identifier String
+    | Number Integer
+    | Plus Expression Expression
+    | Minus Expression Expression
+    | Multiply Expression Expression
+    | Divide Expression Expression
     deriving (Show, Eq)
 
-data Labeldef
-    = Labeldef Ident
-    | LEmpty
+data Block = Block {
+        blockConsts :: [(String, Integer)],
+        blockVars :: [String],
+        blockProcs :: [Procedure],
+        blockStatement :: Statement
+    }
     deriving (Show, Eq)
 
-data Stmts
-    = Stmts Stmt Stmts
-    | SEmpty
-    deriving (Show, Eq)
-
-data Stmt
-    = StmtReturn Term 
-    | StmtReturnNull
-    | StmtGoto Ident
-    | StmtIf Expr Stmts
-    | StmtDecl Ident Expr
-    | StmtTerm Term
-    | StmtLExpr LExpr Expr
-    | StmtEmpty
-    deriving (Show, Eq)
-    
-data Expr
-    = ExprUnary Unary
-    | ExprPlus Term Term
-    | ExprMult Term Term
-    | ExprAnd Term Term
-    | ExprTerm Term
-    deriving (Show, Eq)
-
-data LExpr
-    = LExpr Ident
-    deriving (Show, Eq)
-
-data Unary
-    = UnaryNot Unary
-    | UnaryMinus Unary
-    | UnaryTerm Term
-    deriving (Show, Eq)
-
-data Term
-    = TermId Ident
-    | TermExpr Expr
-    | TermNum Int
-    | TermCall Ident Params
+data Procedure = Procedure String Block
     deriving (Show, Eq)
 
 
-type Ident = String
+
 
 

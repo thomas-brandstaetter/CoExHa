@@ -23,13 +23,25 @@ import System.Exit (exitFailure)
 import Test.QuickCheck.All (quickCheckAll)
 
 
+import Scanner
 import Parser
+import CodeGen
+
 
 
 
 -- Hello World
 exeMain = do
-    run
+    
+    inString <- getContents
+    let parseTree = mycehParser (alexScanTokens inString)
+    
+    putStrLn ("parseTree: " ++ show(parseTree))
+    
+    codegen parseTree "bitcode.bc"
+    
+    
+
 
 -- Entry point for unit tests.
 testMain = do

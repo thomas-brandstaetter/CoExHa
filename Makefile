@@ -5,9 +5,11 @@ SRC=src
 BUILD=build
 DEFS=$(SRC)/defs
 
+TARGET=$(BUILD)/myceh
+
 HAPPY=happy
-#HAPPY_OPTS=--info=grammar.info -g -a -d
-HAPPY_OPTS=
+HAPPY_OPTS=--info=grammar.info -g -a -d
+#HAPPY_OPTS=
 
 ALEX=alex
 ALEX_OPTS=
@@ -18,13 +20,15 @@ GHC_OPTS=
 
 all: build
 
+run: 
+	$(TARGET)
 
 build: generate
 	mkdir -p $(OBJ)
 	mkdir -p $(HI)
 	mkdir -p $(BUILD)
-	$(GHC) $(GHC_OPTS) -odir $(OBJ) -hidir $(HI) -o build/myce $(SRC)/Main.hs $(SRC)/Scanner.hs $(SRC)/Parser.hs $(SRC)/CodeGen.hs $(SRC)/TypeNames.hs 
-	chmod +x $(BUILD)/myce
+	$(GHC) $(GHC_OPTS) -odir $(OBJ) -hidir $(HI) -o $(TARGET) $(SRC)/Main.hs $(SRC)/Scanner.hs $(SRC)/Parser.hs $(SRC)/CodeGen.hs $(SRC)/TypeNames.hs 
+	chmod +x $(TARGET)
 
 
 generate: $(SRC)/Scanner.hs $(SRC)/Parser.hs
