@@ -5,6 +5,8 @@ SRC=src
 BUILD=build
 DEFS=$(SRC)/defs
 
+VIEWERR=subl
+
 TARGET=$(BUILD)/myceh
 
 HAPPY=happy
@@ -41,11 +43,21 @@ $(SRC)/Parser.hs: $(DEFS)/parser.y
 	$(HAPPY) $(HAPPY_OPTS)  $(DEFS)/parser.y
 	mv $(DEFS)/parser.hs $(SRC)/Parser.hs
 
-dis: bitcode.ir
-	llvm-dis-mp-3.2 -o bitcode.dis bitcode.ir
+as: dis 
+	llvm-as-mp-3.2 -o bitcode.as bitcode.bc
+	$(VIEWERR) bitcode.as
+
+dis: bitcode.bc
+	llvm-dis-mp-3.2 -o bitcode.llvm_dis bitcode.bc
+	$(VIEWERR) bitcode.llvm_dis
 
 clean: 
 	cd $(SRC); rm -rf Scanner.hs Parser.hs
 	rm -rf $(OBJ) $(HI) $(BUILD)
 
-.PHONY: clean
+help:
+	open "http://llvm.org/docs/CommandGuide/llc.html"
+	open "http://stackoverflow.com/questions/14604357/expected-top-level-entity"
+	
+
+.PHONY: dis as clean help

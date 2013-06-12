@@ -128,7 +128,8 @@ BlockStatement:
 Statement :: { Statement }
 Statement:
     identifier ":=" Expression      { Assign  $1 $3  }
-    | call identifier               { Call  $2 }
+--    | call identifier               { Call  $2 }
+    | call identifier               { error "not implemented" }
     | begin Statement end           { Begin [$2] }
     | begin Statement ";" Statement end
                                     { Begin ([$2] ++ [$4]) }
@@ -156,18 +157,16 @@ Condition:
 --
 -- ---=== Expression ===---
 --
--- expression = [ "+"|"-"] term { ("+"|"-") term}.
+-- correct:             expression = [ "+"|"-"] term { ("+"|"-") term }.
+-- my interpretation:   expression = term { ("+"|"-") term }.
+
 
 Expression :: { Expression }
 Expression:
     Term                            { $1 }
-    | "+" Term                      { $2 }
-    | "-" Term                      { $2 }
-    | "+" Term Expression           { Plus $2 $3 }
-    | "-" Term Expression           { Minus $2 $3 }
+    | Term "+" Expression           { (Plus $1 $3) }
+    | Term "-" Expression           { (Minus $1 $3) }
 
-Expression2 :: { Expression }
-    
 
 --
 -- ---=== Term ===---
