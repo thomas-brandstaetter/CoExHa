@@ -102,9 +102,13 @@ Vars:
 
 -- Procedure
 
+BlockProcedure :: { [Procedure] } 
 BlockProcedure:
     procedure identifier ";" Block ";" 
                                     { [Procedure $2 $4] }
+    | procedure identifier ";" Block ";" BlockProcedure
+                                    { (Procedure $2 $4) : $6 }
+    |                               { [] }
 
 BlockStatement :: { Statement }
 BlockStatement: 
@@ -156,12 +160,14 @@ Condition:
 
 Expression :: { Expression }
 Expression:
-    "+" Term                        { $2 }
+    Term                            { $1 }
+    | "+" Term                      { $2 }
     | "-" Term                      { $2 }
     | "+" Term Expression           { Plus $2 $3 }
     | "-" Term Expression           { Minus $2 $3 }
 
-
+Expression2 :: { Expression }
+    
 
 --
 -- ---=== Term ===---
@@ -171,7 +177,8 @@ Expression:
 
 --Term :: { Expression }
 Term:
-    Factor "*" Factor               { Multiply  $1 $3 }
+    Factor                          { $1 }
+    | Factor "*" Factor             { Multiply  $1 $3 }
     | Factor "/" Factor             { Divide    $1 $3 }
 
 

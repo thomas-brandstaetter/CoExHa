@@ -13,18 +13,18 @@
 tokens :-
 
     $white+                 ;
-    "return"                { \p s -> TReturn p }
-    "begin"                 { \p s -> TBegin p }
-    "end"                   { \p s -> TEnd p }
-    "var"                   { \p s -> TVar p }
-    "const"                 { \p s -> TConst p }
-    "procedure"             { \p s -> TProcedure p }
-    "while"                 { \p s -> TWhile p }
-    "do"                    { \p s -> TDo p }
-    "if"                    { \p s -> TIf p }
-    "then"                  { \p s -> TThen p }
-    "call"                  { \p s -> TCall p }
-    "odd"                   { \p s -> TOdd p }
+    "RETURN"                { \p s -> TReturn p }
+    "BEGIN"                 { \p s -> TBegin p }
+    "END"                   { \p s -> TEnd p }
+    "VAR"                   { \p s -> TVar p }
+    "CONST"                 { \p s -> TConst p }
+    "PROCEDURE"             { \p s -> TProcedure p }
+    "WHILE"                 { \p s -> TWhile p }
+    "DO"                    { \p s -> TDo p }
+    "IF"                    { \p s -> TIf p }
+    "THEN"                  { \p s -> TThen p }
+    "CALL"                  { \p s -> TCall p }
+    "ODD"                   { \p s -> TOdd p }
     "#"                     { \p s -> TNotEqual p }
     ":="                    { \p s -> TAssign p }
     "<"                     { \p s -> TLess p }
