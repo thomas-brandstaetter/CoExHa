@@ -8,7 +8,8 @@ import Data.Int (Int64)
 import Data.Word (Word8, Word32)
 
 
-
+-- |Generates LLVM code for Expressions 
+-- = + _ * /
 codegenExpr :: [(String, Value (Ptr Int64))] -> Expression -> CodeGenFunction r (Value Int64)
 codegenExpr ls (Identifier s) = case lookup s ls of
     Nothing -> error $ "unknown identifier: " ++ s
@@ -19,11 +20,14 @@ codegenExpr ls (Minus e1 e2)    = arith ls e1 e2 isub
 codegenExpr ls (Multiply e1 e2) = arith ls e1 e2 imul
 codegenExpr ls (Divide e1 e2)   = arith ls e1 e2 idiv
 
+-- |Helper for arithmehic functions
 arith ls e1 e2 f = do
     lhs <- codegenExpr ls e1
     rhs <- codegenExpr ls e2
     f lhs rhs
 
+-- |Gernerates LLVM code for compare operators
+-- = # < > <= => 
 codegenCond :: [(String, Value (Ptr Int64))] -> Condition -> CodeGenFunction r (Value Bool)
 codegenCond ls (Eq e1 e2) = cnd ls e1 e2 CmpEQ
 codegenCond ls (Ne e1 e2) = cnd ls e1 e2 CmpNE
@@ -32,11 +36,14 @@ codegenCond ls (Lt e1 e2) = cnd ls e1 e2 CmpLT
 codegenCond ls (Ge e1 e2) = cnd ls e1 e2 CmpGE
 codegenCond ls (Le e1 e2) = cnd ls e1 e2 CmpLE
 
+-- |Helper for compare operators
 cnd ls e1 e2 f = do
     lhs <- codegenExpr ls e1
     rhs <- codegenExpr ls e2
     cmp f lhs rhs
 
+-- |Gernerates LLVM code for statements
+-- assign, begin, while
 codegenStatement :: [(String, Value (Ptr Int64))] -> Statement -> CodeGenFunction () ()
 codegenStatement ls (Assign id e) = case lookup id ls of
     Nothing -> error $ "unknown identifier: " ++ id
@@ -69,6 +76,7 @@ codegenStatement ls (While cond s) = do
     defineBasicBlock exit
     ret ()
 
+-- |Gernerates LLVM code for blocks used in if, while, procedures
 codegenBlock :: [(String, Value (Ptr Int64))] -> Block -> CodeGenModule (Function (IO ()))
 codegenBlock vls (Block _ vars _ stmt) = do
     -- And here is the type error
@@ -82,7 +90,8 @@ codegenBlock vls (Block _ vars _ stmt) = do
             v <- alloca
             return (n, v)
 
-
+-- |Entrypoint
+-- the provided abstract syntax tree will be transformed into LLVM code 
 codegen block file = do
 
     m <- newModule
