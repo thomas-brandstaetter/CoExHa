@@ -21,7 +21,7 @@ import Control.Monad (unless)
 import Data.List (stripPrefix)
 import System.Exit (exitFailure)
 import Test.QuickCheck.All (quickCheckAll)
-
+import System.Environment
 
 import Scanner
 import Parser
@@ -32,14 +32,17 @@ import CodeGen
 
 -- Hello World
 exeMain = do
-    
+
+--    args <- getArgs
+--    print $ show args   
+ 
     inString <- getContents
     let parseTree = mycehParser (alexScanTokens inString)
     
     putStrLn ("parseTree: " ++ show(parseTree))
     
-    codegen parseTree "bitcode.bc"
-    
+--    codegen parseTree (head getArgs)
+    codegen parseTree "bitcode.bc"   
     
 
 
