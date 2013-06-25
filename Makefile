@@ -25,13 +25,9 @@ all: build
 run: 
 	$(TARGET)
 
-build: generate
-	mkdir -p $(OBJ)
-	mkdir -p $(HI)
-	mkdir -p $(BUILD)
+build: generate ensure_directories
 	$(GHC) $(GHC_OPTS) -odir $(OBJ) -hidir $(HI) -o $(TARGET) $(SRC)/Main.hs $(SRC)/Scanner.hs $(SRC)/Parser.hs $(SRC)/CodeGen.hs $(SRC)/TypeNames.hs 
 	chmod +x $(TARGET)
-
 
 generate: $(SRC)/Scanner.hs $(SRC)/Parser.hs
 
@@ -59,5 +55,9 @@ help:
 	open "http://llvm.org/docs/CommandGuide/llc.html"
 	open "http://stackoverflow.com/questions/14604357/expected-top-level-entity"
 	
+ensure_directories:
+	mkdir -p $(OBJ)
+	mkdir -p $(HI)
+	mkdir -p $(BUILD)
 
 .PHONY: dis as clean help
